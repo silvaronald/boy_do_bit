@@ -10,9 +10,12 @@ def main():
     SCREEN_HEIGHT = 600
 
     game_speed = 20
-    # Música de fundo
+
+    # Sons utilizados
     music = pygame.mixer.music.load("Assets/sounds/pixel_king_hall.mp3")
     pygame.mixer.music.play(-1)
+
+    death_sound = pygame.mixer.Sound("Assets/sounds/death_sound.mp3")
 
     # Imagens que serão utilizadas
     run_animation = []
@@ -216,7 +219,7 @@ def main():
     wait_animation_enemy = 0
 
     time = 0
-    lifes = 3
+    lives = 3
     zeros = 0
     ones = 0
 
@@ -299,7 +302,7 @@ def main():
             # O player perde uma vida quando bate em algum obstáculo
             if boy.boy_rect.colliderect(obstacle.rect):
                 obstacles.pop(obstacles.index(obstacle))
-                lifes -= 1
+                lives -= 1
 
             # Destrói um Dikastis se o player o atingir com um check
             for bullet in bullets:
@@ -332,7 +335,7 @@ def main():
                 collectable.pop(collectable.index(collect))
 
         # Mostra na tela os status de vidas e bits coletados
-        text0 = font.render('Lifes: ' + str(lifes), True, (0, 0, 0))
+        text0 = font.render('Lives: ' + str(lives), True, (0, 0, 0))
         text1 = font.render('0: ' + str(zeros), True, (0, 0, 0))
         text2 = font.render('1: ' + str(ones), True, (0, 0, 0))
 
@@ -342,7 +345,9 @@ def main():
 
         pygame.display.update()
 
-        if lifes == 0:
+        if lives == 0:
+            death_sound.play()
+            
             Game_Over(zeros, ones)
 
     pygame.quit()
@@ -351,9 +356,8 @@ def main():
 def Game_Over(zeros=0, ones=0):
     pygame.init()
 
-    # Para a música
     pygame.mixer.music.stop()
-    
+
     win = pygame.display.set_mode((1000, 600))
 
     pygame.display.set_caption("Boy do Bit")
