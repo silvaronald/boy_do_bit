@@ -219,8 +219,8 @@ def main():
     while run:
         pygame.time.delay(50)
         time += 1
-        if time%20 == 0:
-            game_speed += 1
+         if time%50 == 0:
+            game_speed += 0.6
         for bullet in bullets:
             if bullet.x < 1000 and bullet.x > 0:
                 bullet.x += bullet.vel
