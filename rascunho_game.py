@@ -65,15 +65,26 @@ def main():
         jump_scaled = pygame.transform.scale(jump, (100, 125))
         jump_animation.append(jump_scaled)
 
-    def background(x_bg):
-        bg_width = background_image.get_width()
-        win.blit(background_image, (x_bg, 0))
-        win.blit(background_image, (bg_width + x_bg, 0))
-        # quando uma imagem de background sai da tela outra é criada logo em seguida
-        if x_bg <= -bg_width:
-            win.blit(background_image, (bg_width + x_bg, 0))
-            x_bg = 0
-        x_bg -= game_speed
+
+    class BG(object):
+        def __init__(self):
+            self.x = 0
+            self.y = 0
+
+            self.bg_img = background_image
+            self.bg_width = self.bg_img.get_width()
+
+        def update(self, game_speed, SCREEN):
+            if self.x <= -self.bg_width:
+                SCREEN.blit(self.bg_img, (self.bg_width + self.x, self.y))
+                self.x = 0
+            self.x -= game_speed
+
+        def draw(self, SCREEN):
+            SCREEN.blit(self.bg_img, (self.x, self.y))
+            SCREEN.blit(self.bg_img, (self.bg_width + self.x, self.y))
+
+
 
     class player(object):
         def __init__(self, y):
@@ -205,6 +216,7 @@ def main():
     font = pygame.font.SysFont('comicsans', 20, True)
     #criando objeto boy --> (player)
     boy = player(400)
+    background = BG()
     bullets = []
     obstacles = []
     collectable = []
@@ -219,7 +231,7 @@ def main():
     while run:
         pygame.time.delay(50)
         time += 1
-         if time%50 == 0:
+        if time%50 == 0:
             game_speed += 0.6
         for bullet in bullets:
             if bullet.x < 1000 and bullet.x > 0:
@@ -251,6 +263,9 @@ def main():
                 jumpcount = 10
 
         win.fill((255, 255, 255))
+        background.draw(win)
+        background.update(game_speed, win)
+
         boy.draw(win)
         boy.update(userInput)
 
