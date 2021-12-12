@@ -155,7 +155,7 @@ def main():
             self.type = 0
             self.category = "enemy"
             super().__init__(image, self.type, self.category)
-            self.rect.y = 300
+            self.rect.y = random.randint(220, 340)
             self.index = 0
 
         def draw(self, SCREEN):
@@ -188,7 +188,7 @@ def main():
             self.type = random.randint(0, 1)
             self.category = "coin"
             super().__init__(image, self.type, self.category)
-            self.rect.y = 300
+            self.rect.y = random.randint(230, 350)
 
     jumpcount = 10
 
@@ -225,8 +225,8 @@ def main():
         time += 1
 
         # Aumenta a dificuldade (velocidade dos objetos) conforme o tempo passa
-        if time % 20 == 0:
-            game_speed += 0.5
+        if time % 50 == 0:
+            game_speed += 0.6
 
         # Exclui o check quando ele sai da visão
         for bullet in bullets:
