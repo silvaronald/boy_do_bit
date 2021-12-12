@@ -56,6 +56,8 @@ def main():
             self.bg_width = self.bg_img.get_width()
 
         def update(self, game_speed, SCREEN):
+            SCREEN.blit(self.bg_img, (self.x, self.y))
+            SCREEN.blit(self.bg_img, (self.bg_width + self.x, self.y))
             if self.x <= -self.bg_width:
                 SCREEN.blit(self.bg_img, (self.bg_width + self.x, self.y))
                 self.x = 0
