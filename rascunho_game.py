@@ -9,6 +9,7 @@ def main():
 
     game_speed = 20
 
+    # Imagens que serão utilizadas
     run_animation = []
 
     jump_animation = []
