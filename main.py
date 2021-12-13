@@ -10,6 +10,8 @@ def main():
     SCREEN_WIDTH = 1000
     SCREEN_HEIGHT = 600
 
+    win = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
     game_speed = 20
 
     # Sons utilizados
@@ -26,7 +28,7 @@ def main():
     jump_animation = []
 
     background_image = pygame.image.load(os.path.join("Assets/background", "rua_da_aurora.png"))
-    background_image = pygame.transform.scale(background_image, (1000, 600))
+    background_image = pygame.transform.scale(background_image, (1000, 600)).convert()
 
     projectile_image = pygame.image.load(os.path.join("Assets/projectile", "Aceito.png"))
 
@@ -71,10 +73,10 @@ def main():
             self.bg_img = background_image
             self.bg_width = self.bg_img.get_width()
 
-        def update(self, game_speed, SCREEN):
+        def update(self):
             if self.x <= -self.bg_width:
-                SCREEN.blit(self.bg_img, (self.bg_width + self.x, self.y))
                 self.x = 0
+
             self.x -= game_speed
 
         def draw(self, SCREEN):
@@ -256,16 +258,14 @@ def main():
 
     jumpcount = 10
 
-    win = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
     pygame.display.set_caption("Boy do Bit")
 
     font = pygame.font.SysFont('comicsans', 20, True)
 
     # Criando objeto boy --> (player)
     boy = player(400)
-    background = BG()
 
+    background = BG()
     bullets = []
     obstacles = []
     collectable = []
@@ -283,11 +283,9 @@ def main():
     run = True
     while run:
         # Desenha o background
-        win.blit(background_image, (0, 0))
-        win.fill((255, 255, 255))
         background.draw(win)
-        background.update(game_speed, win)
-
+        background.update()
+        
         pygame.time.delay(50)
 
         time += 1
