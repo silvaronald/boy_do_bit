@@ -1,6 +1,7 @@
 import pygame
 import os
 import random
+from pygame import mixer
 
 
 def main():
@@ -302,11 +303,15 @@ def main():
             # O player perde uma vida quando bate em algum obstáculo
             if boy.boy_rect.colliderect(obstacle.rect):
                 obstacles.pop(obstacles.index(obstacle))
+                collide_Sound = mixer.Sound('Assets/sounds/collision.wav')
+                collide_Sound.play()
                 lives -= 1
 
             # Destrói um Dikastis se o player o atingir com um check
             for bullet in bullets:
                 if bullet.proj_rect.colliderect(obstacle.rect) and obstacle.category == "enemy":
+                    bullet_Sound = mixer.Sound('Assets/sounds/laser1.wav')
+                    bullet_Sound.play()
                     try:
                         obstacles.pop(obstacles.index(obstacle))
                     except:
@@ -326,6 +331,8 @@ def main():
             collect.update()
 
             if boy.boy_rect.colliderect(collect.rect):
+                collect_Sound = mixer.Sound('Assets/sounds/collect.wav')
+                collect_Sound.play()
                 if collect.type == 0:
                     zeros += 1
 
