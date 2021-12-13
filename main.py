@@ -25,7 +25,8 @@ def main():
 
     jump_animation = []
 
-    background_image = pygame.image.load(os.path.join("Assets/background", "bg.jpg"))
+    background_image = pygame.image.load(os.path.join("Assets/background", "rua_da_aurora.png"))
+    background_image = pygame.transform.scale(background_image, (1000, 600))
 
     projectile_image = pygame.image.load(os.path.join("Assets/projectile", "Aceito.png"))
 
@@ -36,6 +37,8 @@ def main():
                  pygame.image.load(os.path.join("Assets/collectables", "pixel 1.png"))]
 
     heart_image = pygame.image.load(os.path.join("Assets/collectables", "heart pixel art 64x64.png"))
+
+    slow_item = pygame.image.load(os.path.join("Assets/collectables", "slow passion fruit.png"))
 
     up, down = pygame.image.load(os.path.join("Assets/enemy", "dikastis_up_pixel.png")), pygame.image.load(
         os.path.join("Assets/enemy", "dikastis_down_pixel.png"))
@@ -229,6 +232,28 @@ def main():
                 except:
                     None
 
+    #classe do item que desacelera o jogo (é um maracujá)
+    class slow_item_passion:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+            self.image = slow_item
+            self.rect = self.image.get_rect()
+            self.rect.x = x
+            self.rect.y = y
+        
+        def draw(self, SCREEN):
+            SCREEN.blit(self.image, (self.rect.x, self.rect.y))
+        
+        def update(self):
+            self.rect.x -= game_speed
+            if self.rect.x < -self.rect.width:
+                try:
+                    passion_fruit.pop()
+                except:
+                    None
+
     jumpcount = 10
 
     win = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -245,6 +270,7 @@ def main():
     obstacles = []
     collectable = []
     hearts = []
+    passion_fruit = []
 
     wait_animation_player = 0
     wait_animation_enemy = 0
@@ -343,6 +369,9 @@ def main():
                     # Quando um Dikastis é destruído, existe 5% de chance de surgir um coração em seu lugar
                     if random.randint(1, 100) <= 5:
                         hearts.append(life_heart(obstacle.rect.x, obstacle.rect.y))
+                    #Pode ter a chance de aparecer uma fruta que diminui velocidade
+                    elif 5 < random.randint(1, 100) <= 15:
+                        passion_fruit.append(slow_item_passion(obstacle.rect.x, obstacle.rect.y))
 
                     bullet_Sound = mixer.Sound('Assets/sounds/laser1.wav')
                     bullet_Sound.play()
@@ -389,6 +418,16 @@ def main():
                     lives = 3
                 
                 hearts.pop(hearts.index(heart))
+
+        #se pegar um maracuja (slow passion fruit) a velocidade do jogo diminui
+        for maracuja in passion_fruit:
+            maracuja.draw(win)
+            maracuja.update()
+
+            if boy.boy_rect.colliderect(maracuja.rect):
+                game_speed -= 0.6
+
+                passion_fruit.pop(passion_fruit.index(maracuja))
 
 
         # Mostra na tela os status de vidas e bits coletados
