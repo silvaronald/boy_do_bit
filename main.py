@@ -456,7 +456,7 @@ def Game_Over(zeros=0, ones=0):
 
     pygame.display.set_caption("Boy do Bit")
 
-    font = pygame.font.SysFont('comicsans', 20, True)
+    font = pygame.font.Font('Assets/fonts/zorque.otf', 20)
 
     run = True
     while run:
@@ -471,18 +471,23 @@ def Game_Over(zeros=0, ones=0):
         if userInput[pygame.K_SPACE]:
             main()
 
-        win.fill((255, 255, 255))
+        #background do Game Over
+        bg = pygame.image.load(os.path.join("Assets/gameover", "game_over_background.png")).convert()
+        win.blit(bg, (0,0))
 
         # Mostra o menu de fim de jogo
-        text0 = font.render('GAME OVER', True, (0, 0, 0))
+        text0 = font.render('GAME OVER', True, (255, 255, 255))
         text1 = font.render("press 'space' to restart", True, (0, 0, 0))
-        text_zeros = font.render("0's collected:" + str(zeros), True, (0, 0, 0))
-        text_ones = font.render("1's collected:" + str(ones), True, (0, 0, 0))
+        text_zeros = font.render("0's collected:" + str(zeros), True, (255, 255, 255))
+        text_ones = font.render("1's collected:" + str(ones), True, (255, 255, 255))
 
         text0_rect = text0.get_rect(center=(500, 200))
         text1_rect = text1.get_rect(center=(500, 240))
         text_zeros_rect = text_zeros.get_rect(center=(500, 300))
         text_ones_rect = text_ones.get_rect(center=(500, 340))
+
+
+        pygame.draw.rect(win,(201,34,46), pygame.Rect(360, 140, 290, 270), 0, 3)
 
         win.blit(text0, text0_rect)
         win.blit(text1, text1_rect)
