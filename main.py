@@ -10,6 +10,8 @@ def main():
     SCREEN_WIDTH = 1000
     SCREEN_HEIGHT = 600
 
+    win = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
     game_speed = 20
 
     # Sons utilizados
@@ -18,23 +20,32 @@ def main():
 
     death_sound = pygame.mixer.Sound("Assets/sounds/death_sound.mp3")
 
+    collect_Sound = pygame.mixer.Sound('Assets/sounds/collect.wav')
+
     # Imagens que serão utilizadas
     run_animation = []
 
     jump_animation = []
 
-    background_image = pygame.image.load(os.path.join("Assets/background", "bg.jpg"))
+    game_over_bg = pygame.image.load(os.path.join("Assets/gameover", "bg_menu4.png"))
+
+    background_image = pygame.image.load(os.path.join("Assets/background", "rua_da_aurora.png"))
+    background_image = pygame.transform.scale(background_image, (1000, 600)).convert()
 
     projectile_image = pygame.image.load(os.path.join("Assets/projectile", "Aceito.png"))
 
-    obstacle_images = [pygame.image.load(os.path.join("Assets/barrier", "Wrong.png")),
-                       pygame.image.load(os.path.join("Assets/barrier", "Runtime_Error.png"))]
+    obstacle_images = [pygame.image.load(os.path.join("Assets/barrier", "pixel_wrong.png")),
+                       pygame.image.load(os.path.join("Assets/barrier", "pixel_runtime-error.png"))]
 
-    img_coins = [pygame.image.load(os.path.join("Assets/collectables", "zero.png")),
-                 pygame.image.load(os.path.join("Assets/collectables", "one.png"))]
+    img_coins = [pygame.image.load(os.path.join("Assets/collectables", "pixel 0.png")),
+                 pygame.image.load(os.path.join("Assets/collectables", "pixel 1.png"))]
 
-    up, down = pygame.image.load(os.path.join("Assets/enemy", "Dikastis_up.png")), pygame.image.load(
-        os.path.join("Assets/enemy", "Dikastis_down.png"))
+    heart_image = pygame.image.load(os.path.join("Assets/collectables", "heart pixel art 64x64.png"))
+
+    slow_item = pygame.image.load(os.path.join("Assets/collectables", "slow passion fruit.png"))
+
+    up, down = pygame.image.load(os.path.join("Assets/enemy", "dikastis_up_pixel.png")), pygame.image.load(
+        os.path.join("Assets/enemy", "dikastis_down_pixel.png"))
     up, down = pygame.transform.scale(up, (80, 130)), pygame.transform.scale(down, (100, 130))
 
     dikastis_animation = [up, down]
@@ -64,10 +75,10 @@ def main():
             self.bg_img = background_image
             self.bg_width = self.bg_img.get_width()
 
-        def update(self, game_speed, SCREEN):
+        def update(self):
             if self.x <= -self.bg_width:
-                SCREEN.blit(self.bg_img, (self.bg_width + self.x, self.y))
                 self.x = 0
+
             self.x -= game_speed
 
         def draw(self, SCREEN):
@@ -137,6 +148,7 @@ def main():
         def draw(self, SCREEN):
             SCREEN.blit(self.image, (self.proj_rect.x, self.proj_rect.y))
 
+    # Super-classe dos obstáculos
     class obstacle:
         def __init__(self, image, type, category):
             self.image = image
@@ -174,6 +186,7 @@ def main():
                 self.index = 0
             self.index += 1
 
+    # Super-classe para os coletáveis
     class collecty:
         def __init__(self, image, type, category):
             self.image = image
@@ -193,28 +206,73 @@ def main():
         def draw(self, SCREEN):
             SCREEN.blit(self.image[self.type], (self.rect.x, self.rect.y))
 
+    # Classe dos 0's e 1's
     class coin(collecty):
         def __init__(self, image):
             self.type = random.randint(0, 1)
             self.category = "coin"
             super().__init__(image, self.type, self.category)
             self.rect.y = random.randint(230, 350)
+    
+    # Classe das vidas
+    class life_heart:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+            
+            self.image = heart_image
+            self.rect = self.image.get_rect()
+            self.rect.x = x
+            self.rect.y = y
+
+        def draw(self, SCREEN):
+            SCREEN.blit(self.image, (self.rect.x, self.rect.y))
+        
+        def update(self):
+            self.rect.x -= game_speed
+            if self.rect.x < -self.rect.width:
+                try:
+                    hearts.pop()
+                except:
+                    None
+
+    #classe do item que desacelera o jogo (é um maracujá)
+    class slow_item_passion:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+            self.image = slow_item
+            self.rect = self.image.get_rect()
+            self.rect.x = x
+            self.rect.y = y
+        
+        def draw(self, SCREEN):
+            SCREEN.blit(self.image, (self.rect.x, self.rect.y))
+        
+        def update(self):
+            self.rect.x -= game_speed
+            if self.rect.x < -self.rect.width:
+                try:
+                    passion_fruit.pop()
+                except:
+                    None
 
     jumpcount = 10
 
-    win = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
     pygame.display.set_caption("Boy do Bit")
 
-    font = pygame.font.SysFont('comicsans', 20, True)
+    font = pygame.font.Font('Assets/font/zorque.otf', 26)
 
     # Criando objeto boy --> (player)
     boy = player(400)
-    background = BG()
 
+    background = BG()
     bullets = []
     obstacles = []
     collectable = []
+    hearts = []
+    passion_fruit = []
 
     wait_animation_player = 0
     wait_animation_enemy = 0
@@ -226,8 +284,10 @@ def main():
 
     run = True
     while run:
-        win.blit(background_image, (0, 0))
-
+        # Desenha o background
+        background.draw(win)
+        background.update()
+        
         pygame.time.delay(50)
 
         time += 1
@@ -278,10 +338,6 @@ def main():
                 boy.isrun = True
                 jumpcount = 10
 
-        win.fill((255, 255, 255))
-        background.draw(win)
-        background.update(game_speed, win)
-
         boy.draw(win)
         boy.update(userInput)
 
@@ -310,6 +366,13 @@ def main():
             # Destrói um Dikastis se o player o atingir com um check
             for bullet in bullets:
                 if bullet.proj_rect.colliderect(obstacle.rect) and obstacle.category == "enemy":
+                    # Quando um Dikastis é destruído, existe 5% de chance de surgir um coração em seu lugar
+                    if random.randint(1, 100) <= 5:
+                        hearts.append(life_heart(obstacle.rect.x, obstacle.rect.y))
+                    #Pode ter a chance de aparecer uma fruta que diminui velocidade
+                    elif 5 < random.randint(1, 100) <= 15:
+                        passion_fruit.append(slow_item_passion(obstacle.rect.x, obstacle.rect.y))
+
                     bullet_Sound = mixer.Sound('Assets/sounds/laser1.wav')
                     bullet_Sound.play()
                     try:
@@ -317,20 +380,22 @@ def main():
                     except:
                         None
 
-                    bullets.pop(bullets.index(bullet)
-                                )
+                    bullets.pop(bullets.index(bullet))
                     bullet.draw(win)
                     obstacle.draw(win)
 
+        # Cria 0's e 1's
         if len(collectable) == 0:
             collectable.append(coin(img_coins))
 
-        # Aumenta a pontuação conforme o usuário coleta 0's e 1's
+        # Aumenta a pontuação conforme o usuário coleta 0's e 1's 
         for collect in collectable:
             collect.draw(win)
             collect.update()
 
             if boy.boy_rect.colliderect(collect.rect):
+                collect_Sound.play()
+
                 collect_Sound = mixer.Sound('Assets/sounds/collect.wav')
                 collect_Sound.play()
                 if collect.type == 0:
@@ -340,6 +405,30 @@ def main():
                     ones += 1
 
                 collectable.pop(collectable.index(collect))
+        
+        # Ganha +1 vida ao colidir com um coração
+        for heart in hearts:
+            heart.draw(win)
+            heart.update()
+
+            if boy.boy_rect.colliderect(heart.rect):
+                lives += 1
+
+                if lives > 3:
+                    lives = 3
+                
+                hearts.pop(hearts.index(heart))
+
+        #se pegar um maracuja (slow passion fruit) a velocidade do jogo diminui
+        for maracuja in passion_fruit:
+            maracuja.draw(win)
+            maracuja.update()
+
+            if boy.boy_rect.colliderect(maracuja.rect):
+                game_speed -= 0.6
+
+                passion_fruit.pop(passion_fruit.index(maracuja))
+
 
         # Mostra na tela os status de vidas e bits coletados
         text0 = font.render('Lives: ' + str(lives), True, (0, 0, 0))
@@ -354,13 +443,13 @@ def main():
 
         if lives == 0:
             death_sound.play()
-            
-            Game_Over(zeros, ones)
+
+            Game_Over( game_over_bg, zeros, ones)
 
     pygame.quit()
 
 
-def Game_Over(zeros=0, ones=0):
+def Game_Over(bg, zeros=0, ones=0):
     pygame.init()
 
     pygame.mixer.music.stop()
@@ -369,7 +458,7 @@ def Game_Over(zeros=0, ones=0):
 
     pygame.display.set_caption("Boy do Bit")
 
-    font = pygame.font.SysFont('comicsans', 20, True)
+    font = pygame.font.Font('Assets/font/zorque.otf', 20)
 
     run = True
     while run:
@@ -385,17 +474,22 @@ def Game_Over(zeros=0, ones=0):
             main()
 
         win.fill((255, 255, 255))
+        #background do Game Over
+        win.blit(bg, (0,0))
 
         # Mostra o menu de fim de jogo
-        text0 = font.render('GAME OVER', True, (0, 0, 0))
+        text0 = font.render('GAME OVER', True, (255, 255, 255))
         text1 = font.render("press 'space' to restart", True, (0, 0, 0))
-        text_zeros = font.render("0's collected:" + str(zeros), True, (0, 0, 0))
-        text_ones = font.render("1's collected:" + str(ones), True, (0, 0, 0))
+        text_zeros = font.render("0's collected:" + str(zeros), True, (255, 255, 255))
+        text_ones = font.render("1's collected:" + str(ones), True, (255, 255, 255))
 
         text0_rect = text0.get_rect(center=(500, 200))
         text1_rect = text1.get_rect(center=(500, 240))
         text_zeros_rect = text_zeros.get_rect(center=(500, 300))
         text_ones_rect = text_ones.get_rect(center=(500, 340))
+
+
+        pygame.draw.rect(win,(201,34,46), pygame.Rect(360, 140, 290, 270), 0, 3)
 
         win.blit(text0, text0_rect)
         win.blit(text1, text1_rect)
