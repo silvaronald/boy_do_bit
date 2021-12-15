@@ -190,7 +190,12 @@ def main():
             self.image = image
             self.type = type
             self.category = category
-            self.rect = self.image[self.type].get_rect()
+            #se o obj for apenas uma imagem self.type recebe None
+            if self.type == None:
+                self.rect = self.image.get_rect()
+            #se o obj for uma lista de imagens, self.type receberá um valor que representa o index da lista
+            else:
+                self.rect = self.image[self.type].get_rect()
             self.rect.x = 1000
 
         def update(self):
@@ -202,7 +207,10 @@ def main():
                     None
 
         def draw(self, SCREEN):
-            SCREEN.blit(self.image[self.type], (self.rect.x, self.rect.y))
+            if self.type == None:
+                SCREEN.blit(self.image, (self.rect.x, self.rect.y))
+            else:
+                SCREEN.blit(self.image[self.type], (self.rect.x, self.rect.y))
 
     # Classe dos 0's e 1's
     class coin(collecty):
@@ -212,49 +220,22 @@ def main():
             super().__init__(image, self.type, self.category)
             self.rect.y = random.randint(230, 350)
     
-    # Classe das vidas
-    class life_heart:
-        def __init__(self, x, y):
-            self.x = x
-            self.y = y
-            
-            self.image = heart_image
-            self.rect = self.image.get_rect()
-            self.rect.x = x
-            self.rect.y = y
-
-        def draw(self, SCREEN):
-            SCREEN.blit(self.image, (self.rect.x, self.rect.y))
-        
-        def update(self):
-            self.rect.x -= game_speed
-            if self.rect.x < -self.rect.width:
-                try:
-                    hearts.pop()
-                except:
-                    None
+    class life_heart(collecty):
+        def __init__(self, image):
+            self.type = None
+            self.category = "heart"
+            super().__init__(image, self.type, self.category)
+            self.rect.y = obstacle.rect.y
+            self.rect.x = obstacle.rect.x
 
     #classe do item que desacelera o jogo (é um maracujá)
-    class slow_item_passion:
-        def __init__(self, x, y):
-            self.x = x
-            self.y = y
-
-            self.image = slow_item
-            self.rect = self.image.get_rect()
-            self.rect.x = x
-            self.rect.y = y
-        
-        def draw(self, SCREEN):
-            SCREEN.blit(self.image, (self.rect.x, self.rect.y))
-        
-        def update(self):
-            self.rect.x -= game_speed
-            if self.rect.x < -self.rect.width:
-                try:
-                    passion_fruit.pop()
-                except:
-                    None
+    class slow_item_passion(collecty):
+        def __init__(self, image):
+            self.type = None
+            self.category = "maracuja"
+            super().__init__(image, self.type, self.category)
+            self.rect.y = obstacle.rect.y
+            self.rect.x = obstacle.rect.x
 
     jumpcount = 10
 
@@ -366,10 +347,10 @@ def main():
                 if bullet.proj_rect.colliderect(obstacle.rect) and obstacle.category == "enemy":
                     # Quando um Dikastis é destruído, existe 5% de chance de surgir um coração em seu lugar
                     if random.randint(1, 100) <= 5:
-                        hearts.append(life_heart(obstacle.rect.x, obstacle.rect.y))
-                    #Pode ter a chance de aparecer uma fruta que diminui velocidade
+                        hearts.append(life_heart(heart_image))
+                    #Pode ter a chance de aparecer uma fruta que diminui velocidade (probabilidade de 10%)
                     elif 5 < random.randint(1, 100) <= 15:
-                        passion_fruit.append(slow_item_passion(obstacle.rect.x, obstacle.rect.y))
+                        passion_fruit.append(slow_item_passion(slow_item))
 
                     bullet_Sound = mixer.Sound('Assets/sounds/laser1.wav')
                     bullet_Sound.play()
