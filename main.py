@@ -14,13 +14,28 @@ def main():
 
     game_speed = 20
 
+    # Função para padronizar o volume dos sons
+    def create_sound(name):
+        fullname = "Assets/sounds/" + name     # path + name of the sound file
+        sound = pygame.mixer.Sound(fullname)
+        sound.set_volume(0.40)
+        return sound
+
     # Sons utilizados
-    music = pygame.mixer.music.load("Assets/sounds/pixel_king_hall.mp3")
-    pygame.mixer.music.play(-1)
+    bg_music = create_sound("pixel_king_hall.mp3")
 
-    death_sound = pygame.mixer.Sound("Assets/sounds/death_sound.mp3")
+    # Como o background_sound vai rolar no jogo inteiro, vai começar a tocar logo daqui
+    bg_music.play(-1)
 
-    collect_Sound = pygame.mixer.Sound('Assets/sounds/collect.wav')
+    # Os sons seguintes serao implementados depois (sound effects)
+
+    death_sound = create_sound("death_sound.mp3")
+
+    collect_Sound = create_sound("collect.wav")
+
+    collide_Sound = create_sound("collision.wav")
+
+    bullet_Sound = create_sound("laser1.wav")
 
     # Imagens que serão utilizadas
     run_animation = []
@@ -37,6 +52,12 @@ def main():
 
     img_coins = [pygame.image.load(os.path.join("Assets/collectables", "pixel 0.png")),
                  pygame.image.load(os.path.join("Assets/collectables", "pixel 1.png"))]
+
+    game_over_bg = pygame.image.load(os.path.join("Assets/gameover", "game_over_background.png"))
+
+    # A posição ta zoada, ta sendo controlado de acordo com o game_speed (line 322-330)
+    diff_images = [pygame.image.load(os.path.join("Assets/diff", "easy.png")),
+                 pygame.image.load(os.path.join("Assets/diff", "medium.png")), pygame.image.load(os.path.join("Assets/diff", "hard.png"))]
 
     heart_image = pygame.image.load(os.path.join("Assets/collectables", "heart pixel art 64x64.png"))
 
@@ -277,6 +298,16 @@ def main():
         if time % 50 == 0:
             game_speed += 0.6
 
+        # Condições de dificuldade (exibir na tela easy, medium ou hard feito o Dikastis)
+        if game_speed < 25:
+            win.blit(diff_images[0], (818,70))
+
+        elif game_speed < 35:
+            win.blit(diff_images[1], (818,70))
+
+        else:
+            win.blit(diff_images[2], (818,70))
+
         # Exclui o check quando ele sai da visão
         for bullet in bullets:
             if bullet.x < 1000 and bullet.x > 0:
@@ -340,7 +371,6 @@ def main():
             # O player perde uma vida quando bate em algum obstáculo
             if boy.boy_rect.colliderect(obstacle.rect):
                 obstacles.pop(obstacles.index(obstacle))
-                collide_Sound = mixer.Sound('Assets/sounds/collision.wav')
                 collide_Sound.play()
                 lives -= 1
 
@@ -354,7 +384,6 @@ def main():
                     elif random.randint(1, 100) <= 10:
                         passion_fruit.append(slow_item_passion(slow_item))
 
-                    bullet_Sound = mixer.Sound('Assets/sounds/laser1.wav')
                     bullet_Sound.play()
                     try:
                         obstacles.pop(obstacles.index(obstacle))
@@ -377,8 +406,6 @@ def main():
             if boy.boy_rect.colliderect(collect.rect):
                 collect_Sound.play()
 
-                collect_Sound = mixer.Sound('Assets/sounds/collect.wav')
-                collect_Sound.play()
                 if collect.type == 0:
                     zeros += 1
 
@@ -423,17 +450,18 @@ def main():
         pygame.display.update()
 
         if lives == 0:
+            bg_music.stop()
             death_sound.play()
 
-            Game_Over(zeros, ones)
+            Game_Over(game_over_bg, zeros, ones)
+
+            break
 
     pygame.quit()
 
 
-def Game_Over(zeros=0, ones=0):
+def Game_Over(bg,zeros=0, ones=0):
     pygame.init()
-
-    pygame.mixer.music.stop()
 
     win = pygame.display.set_mode((1000, 600))
 
@@ -453,6 +481,7 @@ def Game_Over(zeros=0, ones=0):
 
         if userInput[pygame.K_SPACE]:
             main()
+            break
 
         #background do Game Over
         bg = pygame.image.load(os.path.join("Assets/gameover", "game_over_background.png")).convert()
@@ -480,6 +509,5 @@ def Game_Over(zeros=0, ones=0):
         pygame.display.update()
 
     pygame.quit()
-
 
 main()
