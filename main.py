@@ -198,11 +198,12 @@ def main():
                 self.rect = self.image[self.type].get_rect()
             self.rect.x = 1000
 
-        def update(self):
+        #coloquei um parâmetro lista pois inicialmente a função se baseava apenas na lista collectable
+        def update(self, lista):
             self.rect.x -= game_speed
             if self.rect.x < -self.rect.width:
                 try:
-                    collectable.pop()
+                    lista.pop()
                 except:
                     None
 
@@ -219,7 +220,8 @@ def main():
             self.category = "coin"
             super().__init__(image, self.type, self.category)
             self.rect.y = random.randint(230, 350)
-    
+
+    #classe dos corações s
     class life_heart(collecty):
         def __init__(self, image):
             self.type = None
@@ -349,7 +351,7 @@ def main():
                     if random.randint(1, 100) <= 5:
                         hearts.append(life_heart(heart_image))
                     #Pode ter a chance de aparecer uma fruta que diminui velocidade (probabilidade de 10%)
-                    elif 5 < random.randint(1, 100) <= 15:
+                    elif random.randint(1, 100) <= 10:
                         passion_fruit.append(slow_item_passion(slow_item))
 
                     bullet_Sound = mixer.Sound('Assets/sounds/laser1.wav')
@@ -370,7 +372,7 @@ def main():
         # Aumenta a pontuação conforme o usuário coleta 0's e 1's 
         for collect in collectable:
             collect.draw(win)
-            collect.update()
+            collect.update(collectable)
 
             if boy.boy_rect.colliderect(collect.rect):
                 collect_Sound.play()
@@ -388,7 +390,7 @@ def main():
         # Ganha +1 vida ao colidir com um coração
         for heart in hearts:
             heart.draw(win)
-            heart.update()
+            heart.update(hearts)
 
             if boy.boy_rect.colliderect(heart.rect):
                 lives += 1
@@ -401,7 +403,7 @@ def main():
         #se pegar um maracuja (slow passion fruit) a velocidade do jogo diminui
         for maracuja in passion_fruit:
             maracuja.draw(win)
-            maracuja.update()
+            maracuja.update(passion_fruit)
 
             if boy.boy_rect.colliderect(maracuja.rect):
                 game_speed -= 0.6
