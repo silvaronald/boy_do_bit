@@ -15,12 +15,21 @@ def main():
     game_speed = 20
 
     # Sons utilizados
-    music = pygame.mixer.music.load("Assets/sounds/pixel_king_hall.mp3")
+    pygame.mixer.music.load("Assets/sounds/pixel_king_hall.mp3")
     pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(0.15)
 
     death_sound = pygame.mixer.Sound("Assets/sounds/death_sound.mp3")
+    pygame.mixer.Sound.set_volume(death_sound, 0.15)
+
+    collide_Sound = mixer.Sound('Assets/sounds/collision.wav')
+    pygame.mixer.Sound.set_volume(collide_Sound, 0.25)
 
     collect_Sound = pygame.mixer.Sound('Assets/sounds/collect.wav')
+    pygame.mixer.Sound.set_volume(collect_Sound, 0.9)
+
+    bullet_Sound = mixer.Sound('Assets/sounds/laser1.wav')
+    pygame.mixer.Sound.set_volume(bullet_Sound, 0.25)
 
     # Imagens que serão utilizadas
     run_animation = []
@@ -316,6 +325,7 @@ def main():
         if userInput[pygame.K_SPACE]:
             if len(bullets) < 1:
                 bullets.append(projectile(165, boy.y + 55))
+                bullet_Sound.play()
 
         # Pula quando o player aperta W
         if not (boy.isJump):
@@ -359,9 +369,12 @@ def main():
             # O player perde uma vida quando bate em algum obstáculo
             if boy.boy_rect.colliderect(obstacle.rect):
                 obstacles.pop(obstacles.index(obstacle))
-                collide_Sound = mixer.Sound('Assets/sounds/collision.wav')
+
                 collide_Sound.play()
+
                 lives -= 1
+
+
 
             # Destrói um Dikastis se o player o atingir com um check
             for bullet in bullets:
@@ -373,8 +386,6 @@ def main():
                     elif 5 < random.randint(1, 100) <= 15:
                         passion_fruit.append(slow_item_passion(obstacle.rect.x, obstacle.rect.y))
 
-                    bullet_Sound = mixer.Sound('Assets/sounds/laser1.wav')
-                    bullet_Sound.play()
                     try:
                         obstacles.pop(obstacles.index(obstacle))
                     except:
@@ -396,8 +407,9 @@ def main():
             if boy.boy_rect.colliderect(collect.rect):
                 collect_Sound.play()
 
-                collect_Sound = mixer.Sound('Assets/sounds/collect.wav')
-                collect_Sound.play()
+
+
+                #collect_Sound.play()
                 if collect.type == 0:
                     zeros += 1
 
@@ -425,7 +437,7 @@ def main():
             maracuja.update()
 
             if boy.boy_rect.colliderect(maracuja.rect):
-                game_speed -= 0.6
+                game_speed -= 1.2
 
                 passion_fruit.pop(passion_fruit.index(maracuja))
 
