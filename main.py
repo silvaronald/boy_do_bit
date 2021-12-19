@@ -328,7 +328,7 @@ def main():
         if userInput[pygame.K_SPACE]:
             if len(bullets) < 1:
                 bullets.append(projectile(165, boy.y + 55))
-
+                bullet_Sound.play()
         # Pula quando o player aperta W
         if not (boy.isJump):
             if userInput[pygame.K_w]:
@@ -384,7 +384,6 @@ def main():
                     elif random.randint(1, 100) <= 10:
                         passion_fruit.append(slow_item_passion(slow_item))
 
-                    bullet_Sound.play()
                     try:
                         obstacles.pop(obstacles.index(obstacle))
                     except:
