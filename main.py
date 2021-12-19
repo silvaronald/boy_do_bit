@@ -214,6 +214,7 @@ def main():
                     img = pygame.image.load(os.path.join("Assets/destroy", f"frame000{i}.png"))
                 else:
                     img = pygame.image.load(os.path.join("Assets/destroy", f"frame00{i}.png"))
+                pygame.display.set_icon(img)
                 img = pygame.transform.scale(img, (200,200))
                 #add todas as imagens da pasta na lista
                 self.images.append(img)
@@ -236,7 +237,7 @@ def main():
             self.rect.x -= game_speed
 
             #limpar a lista das explosões e não pesar no código
-            if self.index >= 68:
+            if self.index >= 70:
                 lista.clear()
         
         def draw(self, SCREEN):
@@ -509,6 +510,7 @@ def main():
             death_sound.play()
 
             Game_Over( game_over_bg, zeros, ones)
+            break
 
     pygame.quit()
 
@@ -536,6 +538,7 @@ def Game_Over(bg, zeros=0, ones=0):
 
         if userInput[pygame.K_SPACE]:
             main()
+            break
 
         win.fill((255, 255, 255))
         #background do Game Over
@@ -584,6 +587,7 @@ def menu():
 
         if userInput[pygame.K_SPACE]:
             main()
+            break
 
         win.fill((255, 255, 255))
         # background da tela inicial
