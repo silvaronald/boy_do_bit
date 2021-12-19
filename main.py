@@ -4,6 +4,8 @@ import random
 from pygame import mixer
 
 
+
+
 def main():
     pygame.init()
 
@@ -15,12 +17,21 @@ def main():
     game_speed = 20
 
     # Sons utilizados
-    music = pygame.mixer.music.load("Assets/sounds/pixel_king_hall.mp3")
+    pygame.mixer.music.load("Assets/sounds/pixel_king_hall.mp3")
     pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(0.15)
 
     death_sound = pygame.mixer.Sound("Assets/sounds/death_sound.mp3")
+    pygame.mixer.Sound.set_volume(death_sound, 0.15)
+
+    collide_Sound = mixer.Sound('Assets/sounds/collision.wav')
+    pygame.mixer.Sound.set_volume(collide_Sound, 0.25)
 
     collect_Sound = pygame.mixer.Sound('Assets/sounds/collect.wav')
+    pygame.mixer.Sound.set_volume(collect_Sound, 0.9)
+
+    bullet_Sound = mixer.Sound('Assets/sounds/laser1.wav')
+    pygame.mixer.Sound.set_volume(bullet_Sound, 0.25)
 
     # Imagens que serão utilizadas
     run_animation = []
@@ -66,6 +77,7 @@ def main():
         jump = pygame.image.load(os.path.join("Assets/player/jump", f"{i}"))
         jump_scaled = pygame.transform.scale(jump, (100, 125))
         jump_animation.append(jump_scaled)
+
 
     class BG(object):
         def __init__(self):
@@ -316,6 +328,7 @@ def main():
         if userInput[pygame.K_SPACE]:
             if len(bullets) < 1:
                 bullets.append(projectile(165, boy.y + 55))
+                bullet_Sound.play()
 
         # Pula quando o player aperta W
         if not (boy.isJump):
@@ -359,9 +372,12 @@ def main():
             # O player perde uma vida quando bate em algum obstáculo
             if boy.boy_rect.colliderect(obstacle.rect):
                 obstacles.pop(obstacles.index(obstacle))
-                collide_Sound = mixer.Sound('Assets/sounds/collision.wav')
+
                 collide_Sound.play()
+
                 lives -= 1
+
+
 
             # Destrói um Dikastis se o player o atingir com um check
             for bullet in bullets:
@@ -373,8 +389,6 @@ def main():
                     elif 5 < random.randint(1, 100) <= 15:
                         passion_fruit.append(slow_item_passion(obstacle.rect.x, obstacle.rect.y))
 
-                    bullet_Sound = mixer.Sound('Assets/sounds/laser1.wav')
-                    bullet_Sound.play()
                     try:
                         obstacles.pop(obstacles.index(obstacle))
                     except:
@@ -396,8 +410,7 @@ def main():
             if boy.boy_rect.colliderect(collect.rect):
                 collect_Sound.play()
 
-                collect_Sound = mixer.Sound('Assets/sounds/collect.wav')
-                collect_Sound.play()
+                #collect_Sound.play()
                 if collect.type == 0:
                     zeros += 1
 
@@ -419,25 +432,27 @@ def main():
                 
                 hearts.pop(hearts.index(heart))
 
-        #se pegar um maracuja (slow passion fruit) a velocidade do jogo diminui
+        #se pegar um maracujá (slow passion fruit) a velocidade do jogo diminui
         for maracuja in passion_fruit:
             maracuja.draw(win)
             maracuja.update()
 
             if boy.boy_rect.colliderect(maracuja.rect):
-                game_speed -= 0.6
+                game_speed -= 1.2
 
                 passion_fruit.pop(passion_fruit.index(maracuja))
 
-
+        pygame.draw.rect(win, (0,0,0), pygame.Rect(20, 40, 150, 100), 0, 3)
         # Mostra na tela os status de vidas e bits coletados
-        text0 = font.render('Lives: ' + str(lives), True, (0, 0, 0))
-        text1 = font.render('0: ' + str(zeros), True, (0, 0, 0))
-        text2 = font.render('1: ' + str(ones), True, (0, 0, 0))
+        text0 = font.render('Lives: ' + str(lives), True, (255, 255, 255))
+        text1 = font.render('0: ' + str(zeros), True, (255, 255, 255))
+        text2 = font.render('1: ' + str(ones), True, (255, 255, 255))
 
         win.blit(text0, (50, 50))
         win.blit(text1, (50, 80))
         win.blit(text2, (50, 100))
+
+
 
         pygame.display.update()
 
@@ -500,5 +515,34 @@ def Game_Over(bg, zeros=0, ones=0):
 
     pygame.quit()
 
+def menu():
+    pygame.init()
 
-main()
+    win = pygame.display.set_mode((1000, 600))
+    bg_menu = pygame.image.load(os.path.join("Assets/menu", "bg_intro.png"))
+
+    pygame.display.set_caption("Boy do Bit")
+
+    run = True
+    while run:
+        pygame.time.delay(50)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+        userInput = pygame.key.get_pressed()
+
+        if userInput[pygame.K_SPACE]:
+            main()
+
+        win.fill((255, 255, 255))
+        # background da tela inicial
+        win.blit(bg_menu, (0, 0))
+
+        pygame.display.update()
+
+    pygame.quit()
+
+menu()
+
